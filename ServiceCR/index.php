@@ -1,5 +1,6 @@
 <?php
     require("connexion.php");
+    include 'statistics.php'
 ?>
 
 <!DOCTYPE html>
@@ -230,8 +231,8 @@
       
       <div class="main-panel">
         <div class="content-wrapper">
-    <!-- Welcome Part -->
-          <div class="row">
+   <!-- Welcome Part -->
+   <div class="row">
             <div class="col-md-12 grid-margin">
               <div class="row">
                 <div class="col-12 col-xl-8 mb-4 mb-xl-0">
@@ -239,11 +240,14 @@
                   <h6 class="font-weight-normal mb-0">All systems are running smoothly! You have <span class="text-primary">
                     <?php
                       $today = date("Y-m-d");
-                      $query = "SELECT COUNT(*) as num_demands FROM demande WHERE DATE(date) = '$today'";
+                      $query = "SELECT COUNT(*) as num_demands 
+                                FROM demande d 
+                                JOIN services s ON d.id_Service = s.id_Services 
+                                WHERE DATE(d.date) = '$today' AND s.id_CreateurSRV = 1";
                       $result = $con->query($query);
                       $row = $result->fetch_assoc();
-                      echo $row['num_demands'] . " new demands today!";
-                    ?>
+                      echo $row['num_demands']. " new demands today!";
+                   ?>
                   </span></h6>
                 </div>
               </div>
@@ -257,35 +261,37 @@
                   <img src="images/dashboard/people.svg" alt="people">
                   <div class="weather-info">
                     <div class="d-flex">
-                      <div>
-                        <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>31<sup>C</sup></h2>
-                      </div>
-                      <div class="ml-2">
-                        <h4 class="location font-weight-normal">Bangalore</h4>
-                        <h6 class="font-weight-normal">India</h6>
-                      </div>
+                    <div>
+                                <h2 class="mb-0 font-weight-normal" id="temperature"><i class="icon-sun mr-2"></i><span id="temp-value"></span><sup>C</sup></h2>
+                            </div>
+                            <div class="ml-2">
+                                <h4 class="location font-weight-normal" id="city"></h4>
+                                <h6 class="font-weight-normal" id="country"></h6>
+                            </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          
+
             <div class="col-md-6 grid-margin transparent">
               <div class="row">
                 <div class="col-md-6 mb-4 stretch-card transparent">
                   <div class="card card-tale">
                     <div class="card-body">
-                      <p class="mb-4">Today’s Bookings</p>
-                      <p class="fs-30 mb-2">4006</p>
-                      <p>10.00% (30 days)</p>
+                      <p class="mb-4">Total Demands</p>
+                      <p class="fs-30 mb-2"><?= $statistics['total_demands']?></p>
+                      <p><?= $statistics['demand_percentage']?>% (30 days)</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6 mb-4 stretch-card transparent">
                   <div class="card card-dark-blue">
                     <div class="card-body">
-                      <p class="mb-4">Total Bookings</p>
-                      <p class="fs-30 mb-2">61344</p>
-                      <p>22.00% (30 days)</p>
+                      <p class="mb-4">Total Posts</p>
+                      <p class="fs-30 mb-2"><?= $statistics['total_posts']?></p>
+                      <p><?= $statistics['post_percentage']?>% (30 days)</p>
                     </div>
                   </div>
                 </div>
@@ -294,119 +300,122 @@
                 <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
                   <div class="card card-light-blue">
                     <div class="card-body">
-                      <p class="mb-4">Number of Meetings</p>
-                      <p class="fs-30 mb-2">34040</p>
-                      <p>2.00% (30 days)</p>
+                      <p class="mb-4">Total Comments</p>
+                      <p class="fs-30 mb-2"><?= $statistics['total_comments']?></p>
+                      <p><?= $statistics['comment_percentage']?>% (30 days)</p>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6 stretch-card transparent">
                   <div class="card card-light-danger">
                     <div class="card-body">
-                      <p class="mb-4">Number of Clients</p>
-                      <p class="fs-30 mb-2">47033</p>
-                      <p>0.22% (30 days)</p>
+                      <p class="mb-4">Average Demand Response Time</p>
+                      <p class="fs-30 mb-2"><?= $statistics['avg_demand_response_time']?> minutes</p>
+                      <p><?= $statistics['avg_demand_response_time_percentage']?>% (30 days)</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-             <!-- Demande part -->
-<div class="row">
-  <div class="col-md-12 grid-margin stretch-card">
-    <div class="card position-relative">
-      <div class="card-body">
-        <p class="card-title">Demandes</p>
-        <form method="post" action="">
-          <div class="form-group">
-            <label for="date">Select Date:</label>
-            <input type="date" class="form-control" id="date" name="date">
-          </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-        <?php
-        // Check connection
-        if ($con->connect_error) {
-          die("Connection failed: ". $con->connect_error);
-        }
+          <!--End of welcom part-->
+          <!-- Demande part -->
+          <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+              <div class="card position-relative">
+                <div class="card-body">
+                  <p class="card-title">Demandes</p>
+                  <form method="post" action="">
+                    <div class="form-group">
+                      <label for="date">Select Date:</label>
+                      <input type="date" class="form-control" id="date" name="date">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </form>
+                  <?php
+                  // Check connection
+                  if ($con->connect_error) {
+                    die("Connection failed: ". $con->connect_error);
+                  }
 
-        // Get the selected date from the form
-        $selectedDate = isset($_POST['date'])? $_POST['date'] : '';
+                  // Get the selected date from the form
+                  $selectedDate = isset($_POST['date'])? $_POST['date'] : '';
 
-        // Query to get the demands grouped by service and ordered by date
-        $sql = "SELECT * FROM demande WHERE DATE(date) = '$selectedDate' AND id_Service = 1 ";   
-        $result = $con->query($sql);
-        ?>
+                  // Query to get the demands of the creator of the service with ID = 1
+                  $sql = "SELECT d.* 
+                          FROM demande d 
+                          JOIN services s ON d.id_Service = s.id_Services 
+                          WHERE DATE(d.date) = '$selectedDate' AND s.id_CreateurSRV = 1";   
+                  $result = $con->query($sql);
+                ?>
 
-        <?php
-        if ($result->num_rows > 0) {
-        ?>
-        <div id="demandesCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
-          <div class="carousel-inner">
-            <?php
-            $firstItem = true;
-            while ($row = $result->fetch_assoc()) {
-              $date = $row['date'];
-              $objet_demander = $row['objet_demander'];
-              $etat = $row['etat'];
-              $id_Service = $row['id_Service'];
-              $autre = $row['autre'];
-              $fichier = $row['fichier'];
-              $id_Client = $row['id_Client'];
-            ?>
-            <div class="carousel-item <?= $firstItem? 'active' : ''?>">
-              <div class="row">
-                <div class="col-md-12 col-xl-3 d-flex flex-column justify-content-start">
-                  <div class="ml-xl-4 mt-3">
-                    <p class="card-title">Demand Details</p>
-                    <h1 class="text-primary"><?= $objet_demander?></h1>
-                    <h3 class="font-weight-500 mb-xl-4 text-primary">Service ID: <?= $id_Service?></h3>
-                    <p class="mb-2 mb-xl-0">State: <?= $etat?></p>
-                    <p class="mb-2 mb-xl-0">Date: <?= $date?></p>
-                    <p class="mb-2 mb-xl-0">Client ID: <?= $id_Client?></p>
-                    <p class="mb-2 mb-xl-0">Other: <?= $autre?></p>
-                    <p class="mb-2 mb-xl-0">Files: 
-                    <?= $fichier?> 
-                    <a href="demandesFiles/<?= $fichier?>" download="<?= $fichier?>">Download</a>
-                  </p>
+                  <?php
+                  if ($result->num_rows > 0) {
+                ?>
+                  <div id="demandesCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                      <?php
+                      $firstItem = true;
+                      while ($row = $result->fetch_assoc()) {
+                        $date = $row['date'];
+                        $objet_demander = $row['objet_demander'];
+                        $etat = $row['etat'];
+                        $id_Service = $row['id_Service'];
+                        $autre = $row['autre'];
+                        $fichier = $row['fichier'];
+                        $id_Client = $row['id_Client'];
+                    ?>
+                      <div class="carousel-item <?= $firstItem? 'active' : ''?>">
+                        <div class="row">
+                          <div class="col-md-12 col-xl-3 d-flex flex-column justify-content-start">
+                            <div class="ml-xl-4 mt-3">
+                              <p class="card-title">Demand Details</p>
+                              <h1 class="text-primary"><?= $objet_demander?></h1>
+                              <h3 class="font-weight-500 mb-xl-4 text-primary">Service ID: <?= $id_Service?></h3>
+                              <p class="mb-2 mb-xl-0">State: <?= $etat?></p>
+                              <p class="mb-2 mb-xl-0">Date: <?= $date?></p>
+                              <p class="mb-2 mb-xl-0">Client ID: <?= $id_Client?></p>
+                              <p class="mb-2 mb-xl-0">Other: <?= $autre?></p>
+                              <p class="mb-2 mb-xl-0">Files: 
+                              <?= $fichier?> 
+                              <a href="demandesFiles/<?= $fichier?>" download="<?= $fichier?>">Download</a>
+                            </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <?php
+                        $firstItem = false;
+                      }
+                    ?>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#demandesCarousel" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#demandesCarousel" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
                   </div>
+                  <?php
+                    } else {
+                      echo "<p>No demands found.</p>";
+                    }
+                ?>
                 </div>
               </div>
             </div>
-            <?php
-              $firstItem = false;
-            }
-            ?>
           </div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#demandesCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#demandesCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-        </div>
-        <?php
-          } else {
-            echo "<p>No demands found.</p>";
-          }
-        ?>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- End demande part -->
-              <!--comments part-->
-              <div class="row">
+          <!-- End demande part -->
+            <!--comments part-->
+            <div class="row">
                 <div class="col-md-12 grid-margin stretch-card">
                   <div class="card position-relative">
                     <div class="card-body">
                       <p class="card-title">Comments</p>
                       <?php
-                      // Retrieve comments from the database
-                      $query = "SELECT * FROM Commentaire";
+                      // Retrieve comments from the database for creator with ID 1
+                      $query = "SELECT * FROM Commentaire WHERE id_Service IN (SELECT id_Services FROM services WHERE id_CreateurSRV = 1)";
                       $result = mysqli_query($con, $query);
 
                       // Display the first three comments
@@ -475,7 +484,6 @@
               </div>
 
               <!--End comments part -->
-
                  <!-- Posts part -->
                 <div class="row">
                   <div class="col-md-12 grid-margin stretch-card">
@@ -615,6 +623,18 @@
         return false;
     }
 </script>
+
+
+<!--weather script-->
+ <script>
+        fetch('weather.php')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('city').textContent = data.city;
+                document.getElementById('country').textContent = data.country;
+                document.getElementById('temp-value').textContent = Math.round(data.temperature - 273.15); // convert Kelvin to Celsius
+            });
+    </script>
 
 
 

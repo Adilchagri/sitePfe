@@ -7,3 +7,33 @@
     height: 50px;
     border: 1px solid #ddd; /* add a border if you want */
   }
+
+  .row {
+    justify-content: center;
+  }
+  
+  .card {
+    margin: 0 auto;
+  }
+  
+  .card-body {
+    text-align: center;
+  }
+  
+  .comment {
+    margin: 0 auto;
+    max-width: 500px;
+  }
+  
+  .carousel-inner {
+    justify-content: center;
+  }
+  
+  .carousel-item {
+    text-align: center;
+  }
+  
+  .modal-content {
+    text-align: center;
+  }
+  
