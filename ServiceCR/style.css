@@ -1,0 +1,9 @@
+
+/*Commentaires area*/
+
+.rounded-circle {
+    border-radius: 50%;
+    width: 50px; /* adjust the width and height to your liking */
+    height: 50px;
+    border: 1px solid #ddd; /* add a border if you want */
+  }
